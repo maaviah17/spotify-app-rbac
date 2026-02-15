@@ -9,7 +9,7 @@ const startServer = async() => {
 
     await connectDB();
     app.listen(PORT,()=>{
-        console.log(`apps running at port : ${PORT} :)   `);
+        console.log(`apps running at port : ${PORT}`);
     })
 }
 

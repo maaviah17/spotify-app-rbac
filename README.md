@@ -11,3 +11,6 @@ Learning project exploring role-based authorization in a music streaming app.
 - Node.js + Express
 - MongoDB + Mongoose
 - JWT authentication
+
+ToDo's : 
+- add zod validation
