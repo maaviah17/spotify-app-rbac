@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    background-color: #080c0a;
+    color: #ecf5f0;
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.6;
+  }
+}
+
+@layer components {
+  /* Waveform bars */
+  .waveform-bar {
+    @apply flex-1 rounded-sm bg-border transition-colors duration-300;
+    animation: wave var(--wave-dur, 1.2s) ease-in-out infinite alternate;
+    animation-delay: var(--wave-delay, 0s);
+    transform-origin: bottom;
+  }
+  .waveform-bar.played { background-color: rgba(45, 216, 122, 0.3); }
+  .waveform-bar.active { background-color: #2dd87a; }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Custom cursor */
+  .cursor-dot {
+    position: fixed;
+    top: 0; left: 0;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #2dd87a;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: difference;
+    transition: transform 0.1s;
+  }
+  .cursor-ring {
+    position: fixed;
+    top: 0; left: 0;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(45, 216, 122, 0.4);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.18s ease, width 0.25s, height 0.25s, border-color 0.25s;
+  }
+  .cursor-ring.hovered {
+    width: 56px; height: 56px;
+    border-color: #2dd87a;
+  }
+}
