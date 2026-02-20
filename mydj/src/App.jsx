@@ -6,6 +6,7 @@ import Landing  from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import MusicLibrary from './pages/MusicLibrary'
+import GlobalPlayer from './components/GlobalPlayer'
 
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
     <PlayerProvider>
     <BrowserRouter>
       <Cursor />
+    <GlobalPlayer />
       <Routes>
         <Route path="/" element={<Landing />} />
         {/* Pages to be added: */}
