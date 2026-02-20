@@ -9,7 +9,7 @@ export default function PlayerCard() {
   useEffect(() => {
     const fetchSongs = async () => {
       try {
-        const res = await fetch('/api/music', { credentials: 'include' })
+        const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/music`, { credentials: 'include' })
         const data = await res.json()
         setSongs(data.songs?.slice(0, 3) || [])
       } catch {

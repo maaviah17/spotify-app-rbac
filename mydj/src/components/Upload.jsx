@@ -33,7 +33,7 @@ export default function Upload() {
     const fetchMyTracks = async () => {
       setTracksLoading(true)
       try {
-        const res = await fetch('/api/music', { credentials: 'include' })
+        const res =  await fetch(`${import.meta.env.VITE_API_URL || ''}/api/music`, { credentials: 'include' })
         const data = await res.json()
         // filter only this artist's tracks
         const mine = (data.songs || []).filter(s => {
@@ -84,7 +84,7 @@ export default function Upload() {
     formData.append('title', trackForm.title)
 
     try {
-      const res = await fetch('/api/music/upload', {
+      const res =  await fetch(`${import.meta.env.VITE_API_URL || ''}/api/music/upload`,{
         method: 'POST',
         credentials: 'include',
         body: formData,
@@ -112,7 +112,7 @@ export default function Upload() {
     setAlbumSuccess('')
 
     try {
-      const res = await fetch('/api/music/album', {
+      const res =await fetch(`${import.meta.env.VITE_API_URL || ''}/api/music/album`,  {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

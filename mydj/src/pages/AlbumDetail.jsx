@@ -17,7 +17,7 @@ export default function AlbumDetail() {
   useEffect(() => {
     const fetch_ = async () => {
       try {
-        const res = await fetch(`/api/music/albums/${albumId}`, { credentials: 'include' })
+        const res =  await fetch(`${import.meta.env.VITE_API_URL || ''}/api/music/albums/${albumId}`, { credentials: 'include' })
         if (res.status === 401) { navigate('/login'); return }
         const data = await res.json()
         setAlbum(data.album)

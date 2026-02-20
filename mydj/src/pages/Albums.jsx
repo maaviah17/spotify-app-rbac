@@ -16,7 +16,7 @@ export default function Albums() {
   useEffect(() => {
     const fetch_ = async () => {
       try {
-        const res = await fetch('/api/music/albums', { credentials: 'include' })
+        const res =await fetch(`${import.meta.env.VITE_API_URL || ''}/api/music/albums`, { credentials: 'include' })
         if (res.status === 401) { navigate('/login'); return }
         const data = await res.json()
         setAlbums(data.albums || [])
