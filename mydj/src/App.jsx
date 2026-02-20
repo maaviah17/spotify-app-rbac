@@ -1,13 +1,17 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { PlayerProvider } from './context/PlayerContext' 
 import Cursor   from './components/Cursor'
 import Landing  from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import MusicLibrary from './pages/MusicLibrary'
+
 
 export default function App() {
   return (
     <AuthProvider>
+    <PlayerProvider>
     <BrowserRouter>
       <Cursor />
       <Routes>
@@ -15,11 +19,12 @@ export default function App() {
         {/* Pages to be added: */}
         <Route path="/login"    element={<Login />} />
         <Route path="/register" element={<Register />} />
-        {/* <Route path="/music"    element={<MusicLibrary />} /> */}
+        <Route path="/music"    element={<MusicLibrary />} />
         {/* <Route path="/albums"   element={<Albums />} /> */}
         {/* <Route path="/albums/:id" element={<AlbumDetail />} /> */}
       </Routes>
     </BrowserRouter>
+    </PlayerProvider>
     </AuthProvider>
   )
 }
