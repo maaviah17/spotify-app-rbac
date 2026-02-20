@@ -6,6 +6,7 @@ import Landing  from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import MusicLibrary from './pages/MusicLibrary'
+import Upload from './components/Upload'  
 import GlobalPlayer from './components/GlobalPlayer'
 
 
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/login"    element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/music"    element={<MusicLibrary />} />
+        <Route path="/upload"    element={<Upload />} />
         {/* <Route path="/albums"   element={<Albums />} /> */}
         {/* <Route path="/albums/:id" element={<AlbumDetail />} /> */}
       </Routes>
