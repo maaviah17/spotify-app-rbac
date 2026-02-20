@@ -3,13 +3,13 @@ import PlayerCard from './PlayerCard'
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen grid place-items-center px-12 pt-28 pb-20 overflow-hidden">
+    <section className="relative min-h-screen grid place-items-center px-20 pt-28 pb-20 overflow-hidden">
       {/* Radial glow */}
       <div className="pointer-events-none absolute w-[900px] h-[900px] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%]"
         style={{ background: 'radial-gradient(circle, rgba(45,216,122,.12) 0%, transparent 65%)' }}
       />
 
-      <div className="relative z-10 max-w-[1100px] w-full grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-16 items-center">
+      <div className="relative z-10 max-w-[1500px] px-16 w-full grid grid-cols-1 lg:grid-cols-[1fr_500px] gap-16 items-center">
 
         {/* Left */}
         <div>
@@ -23,7 +23,7 @@ export default function HeroSection() {
 
           <h1
             className="font-head font-black leading-[0.95] tracking-[-0.04em]"
-            style={{ fontSize: 'clamp(3.2rem, 6vw, 5.8rem)', animation: 'fadeUp 0.7s 0.2s both' }}
+            style={{ fontSize: 'clamp(3.2rem, 6vw, 5.8rem)', animation: 'fadeUp 0.7s 0.2s both' }}  
           >
             Drop Your<br />
             <span className="text-green">Sound.</span><br />

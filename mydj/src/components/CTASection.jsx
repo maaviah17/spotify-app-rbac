@@ -6,7 +6,7 @@ export default function CTASection() {
 
   return (
     <section className="relative z-10">
-      <div ref={ref} className="reveal relative text-center max-w-[800px] mx-auto px-12 py-28">
+      <div ref={ref} className="reveal relative text-center max-w-[800px] mx-auto px-20 py-28">
         {/* Glow */}
         <div className="pointer-events-none absolute w-[600px] h-[600px] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{ background: 'radial-gradient(circle, rgba(168,245,66,.08) 0%, transparent 70%)' }}

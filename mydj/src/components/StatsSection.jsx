@@ -10,7 +10,7 @@ const STATS = [
 export default function StatsSection() {
   return (
     <div id="stats" className="relative z-10 bg-surface border-t border-b border-border">
-      <div className="max-w-[1100px] mx-auto px-12 py-20 grid grid-cols-2 md:grid-cols-4 gap-12">
+      <div className="max-w-[1500px] mx-auto px-20 py-20 grid grid-cols-2 md:grid-cols-4 gap-12">
         {STATS.map(({ num, label, accent }, i) => {
           const ref = useScrollReveal(i * 100)
           return (

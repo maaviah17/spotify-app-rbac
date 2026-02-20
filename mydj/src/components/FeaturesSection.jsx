@@ -36,7 +36,7 @@ export default function FeaturesSection() {
 
   return (
     <section id="features" className="relative z-10">
-      <div className="max-w-[1100px] mx-auto px-12 py-28">
+      <div className="max-w-[1500px] mx-auto px-20 py-28">
         <div ref={titleRef} className="reveal">
           <div className="inline-flex items-center gap-2.5 text-green text-xs uppercase tracking-[0.15em] font-semibold mb-5">
             <span className="w-7 h-[1.5px] bg-green" />
