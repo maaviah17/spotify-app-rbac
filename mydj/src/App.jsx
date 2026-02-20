@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { PlayerProvider } from './context/PlayerContext' 
+import { ToastProvider } from './components/Toast'
 import Cursor   from './components/Cursor'
 import Landing  from './pages/Landing'
 import Login from './pages/Login'
@@ -9,6 +10,8 @@ import MusicLibrary from './pages/MusicLibrary'
 import Upload from './components/Upload'  
 import Profile from './pages/Profile'
 import GlobalPlayer from './components/GlobalPlayer'
+import AlbumDetail from './pages/AlbumDetail'
+import Albums from './pages/Albums'
 import { ProtectedRoute, ArtistRoute } from './components/ProtectedRoute'
 
 
@@ -16,6 +19,7 @@ export default function App() {
   return (
     <AuthProvider>
     <PlayerProvider>
+    <ToastProvider>
     <BrowserRouter>
       <Cursor />
     <GlobalPlayer />
@@ -30,11 +34,12 @@ export default function App() {
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
         {/* artist only */}
+        <Route path="/albums" element={<ProtectedRoute><Albums /></ProtectedRoute>} />
+        <Route path="/albums/:albumId" element={<ProtectedRoute><AlbumDetail /></ProtectedRoute>} />
         <Route path="/upload" element={<ArtistRoute><Upload /></ArtistRoute>} />
-        {/* <Route path="/albums"   element={<Albums />} /> */}
-        {/* <Route path="/albums/:id" element={<AlbumDetail />} /> */}
       </Routes>
     </BrowserRouter>
+    </ToastProvider>
     </PlayerProvider>
     </AuthProvider>
   )

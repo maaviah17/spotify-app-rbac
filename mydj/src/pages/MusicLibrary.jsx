@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { usePlayer } from '../context/PlayerContext'
 import { Link } from 'react-router-dom'
+import { TrackRowSkeleton } from '../components/Skeleton'
 import BottomPlayer from '../components/BottomPlayer'
 
 export default function MusicLibrary() {
@@ -125,11 +126,18 @@ export default function MusicLibrary() {
 
         {/* Loading */}
         {loading && (
-          <div className="flex flex-col items-center justify-center py-32 gap-4">
-            <div className="w-10 h-10 rounded-full border-2 border-green border-t-transparent animate-spin" />
-            <p className="text-muted text-sm">Loading your music…</p>
-          </div>
-        )}
+  <div className="bg-surface border border-border rounded-2xl overflow-hidden">
+    <div className="grid grid-cols-[2rem_1fr_1fr_4rem] gap-4 px-6 py-3 border-b border-border">
+      <span className="text-muted text-xs uppercase tracking-widest">#</span>
+      <span className="text-muted text-xs uppercase tracking-widest">Title</span>
+      <span className="text-muted text-xs uppercase tracking-widest">Artist</span>
+      <span className="text-muted text-xs uppercase tracking-widest text-right">Duration</span>
+    </div>
+    {Array.from({ length: 8 }).map((_, i) => (
+      <TrackRowSkeleton key={i} />
+    ))}
+  </div>
+)}
 
         {/* Empty */}
         {!loading && filtered.length === 0 && (

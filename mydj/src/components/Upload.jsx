@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../components/Toast'
 
 export default function Upload() {
+    
+    const { addToast } = useToast()
   const { user } = useAuth()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('track')
@@ -20,15 +23,46 @@ export default function Upload() {
   const [albumLoading, setAlbumLoading] = useState(false)
   const [albumError, setAlbumError] = useState('')
   const [albumSuccess, setAlbumSuccess] = useState('')
+  const [myTracks, setMyTracks] = useState([])
+  const [tracksLoading, setTracksLoading] = useState(false)
+  const [selectedSongs, setSelectedSongs] = useState([])
 
-  // ── Track upload ──
+  // Fetch artist's own tracks when album tab is opened
+  useEffect(() => {
+    if (activeTab !== 'album') return
+    const fetchMyTracks = async () => {
+      setTracksLoading(true)
+      try {
+        const res = await fetch('/api/music', { credentials: 'include' })
+        const data = await res.json()
+        // filter only this artist's tracks
+        const mine = (data.songs || []).filter(s => {
+          const artistId = s.artist?._id || s.artist
+          return artistId === user?.id || artistId === user?._id
+        })
+        setMyTracks(mine)
+      } catch {
+        // silently fail
+      } finally {
+        setTracksLoading(false)
+      }
+    }
+    fetchMyTracks()
+  }, [activeTab])
+
+  const toggleSong = (id) => {
+    setSelectedSongs(prev =>
+      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+    )
+  }
+
+  // Track upload
   const handleFileDrop = (e) => {
     e.preventDefault()
     setTrackDragging(false)
     const file = e.dataTransfer?.files?.[0] || e.target.files?.[0]
     if (!file) return
-    const valid = ['audio/mpeg', 'audio/wav', 'audio/flac', 'audio/aac', 'audio/mp3']
-    if (!valid.includes(file.type) && !file.name.match(/\.(mp3|wav|flac|aac)$/i)) {
+    if (!file.name.match(/\.(mp3|wav|flac|aac)$/i)) {
       setTrackError('Please upload a valid audio file (MP3, WAV, FLAC, AAC)')
       return
     }
@@ -38,7 +72,7 @@ export default function Upload() {
 
   const handleTrackSubmit = async (e) => {
     e.preventDefault()
-    if (!trackFile)          { setTrackError('Please select an audio file'); return }
+    if (!trackFile)              { setTrackError('Please select an audio file'); return }
     if (!trackForm.title.trim()) { setTrackError('Track title is required'); return }
 
     setTrackLoading(true)
@@ -56,10 +90,7 @@ export default function Upload() {
         body: formData,
       })
       const data = await res.json()
-      if (!res.ok) {
-        setTrackError(data.msg || 'Upload failed. Try again.')
-        return
-      }
+      if (!res.ok) { setTrackError(data.msg || 'Upload failed.'); return }
       setTrackSuccess(`"${data.music.title}" uploaded successfully!`)
       setTrackForm({ title: '' })
       setTrackFile(null)
@@ -70,10 +101,11 @@ export default function Upload() {
     }
   }
 
-  // ── Album create ──
+  // Album create
   const handleAlbumSubmit = async (e) => {
     e.preventDefault()
     if (!albumForm.title.trim()) { setAlbumError('Album title is required'); return }
+    if (selectedSongs.length === 0) { setAlbumError('Select at least one track'); return }
 
     setAlbumLoading(true)
     setAlbumError('')
@@ -84,20 +116,23 @@ export default function Upload() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ title: albumForm.title }),
+        body: JSON.stringify({ title: albumForm.title, songs: selectedSongs }),
       })
       const data = await res.json()
-      if (!res.ok) {
-        setAlbumError(data.msg || 'Failed to create album.')
-        return
-      }
-      setAlbumSuccess(`Album "${albumForm.title}" created successfully!`)
+      if (!res.ok) { setAlbumError(data.msg || 'Failed to create album.'); return }
+      setAlbumSuccess(`Album "${albumForm.title}" created with ${selectedSongs.length} track${selectedSongs.length !== 1 ? 's' : ''}!`)
       setAlbumForm({ title: '' })
+      setSelectedSongs([])
     } catch {
       setAlbumError('Network error — is your server running?')
     } finally {
       setAlbumLoading(false)
     }
+  }
+
+  const fmt = (s) => {
+    if (!s || isNaN(s)) return '--:--'
+    return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
   }
 
   return (
@@ -109,10 +144,12 @@ export default function Upload() {
           My<span className="text-green">DJ</span>
         </Link>
         <div className="flex items-center gap-4">
-          <Link to="/profile" className="w-8 h-8 rounded-full bg-green/20 border border-green/30 flex items-center justify-center font-head font-bold text-xs text-green uppercase">
-            {user?.username?.[0]}
+          <Link to="/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <div className="w-8 h-8 rounded-full bg-green/20 border border-green/30 flex items-center justify-center font-head font-bold text-xs text-green uppercase">
+              {user?.username?.[0]}
+            </div>
+            <span className="text-sm text-muted hidden md:block">{user?.username}</span>
           </Link>
-          <span className="text-sm text-muted hidden md:block">{user?.username}</span>
           <Link
             to="/music"
             className="text-muted text-xs hover:text-text transition-colors uppercase tracking-widest"
@@ -176,7 +213,6 @@ export default function Upload() {
                 className="hidden"
                 onChange={handleFileDrop}
               />
-
               {trackFile ? (
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-14 h-14 rounded-2xl bg-green/20 border border-green/30 grid place-items-center">
@@ -208,9 +244,7 @@ export default function Upload() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-head font-bold text-sm">
-                      Drop your audio here
-                    </p>
+                    <p className="font-head font-bold text-sm">Drop your audio here</p>
                     <p className="text-muted text-xs mt-1">or click to browse files</p>
                   </div>
                   <div className="flex gap-2 mt-1">
@@ -236,7 +270,6 @@ export default function Upload() {
               />
             </div>
 
-            {/* Error / Success */}
             {trackError && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-4 py-3">
                 {trackError}
@@ -251,7 +284,6 @@ export default function Upload() {
               </div>
             )}
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={trackLoading}
@@ -263,29 +295,12 @@ export default function Upload() {
                 </span>
               ) : 'Upload Track →'}
             </button>
-
           </form>
         )}
 
         {/* ── Album Tab ── */}
         {activeTab === 'album' && (
           <form onSubmit={handleAlbumSubmit} className="flex flex-col gap-6">
-
-            {/* Album visual */}
-            <div className="bg-surface border border-border rounded-2xl p-8 flex items-center gap-6">
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-green/20 to-green-dark/10 border border-green/20 flex-shrink-0 grid place-items-center">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2dd87a" strokeWidth="1.5">
-                  <circle cx="12" cy="12" r="10"/>
-                  <circle cx="12" cy="12" r="3"/>
-                  <line x1="12" y1="2" x2="12" y2="9"/>
-                </svg>
-              </div>
-              <div>
-                <p className="font-head font-bold text-lg">{albumForm.title || 'Untitled Album'}</p>
-                <p className="text-muted text-sm mt-1">by {user?.username}</p>
-                <p className="text-muted text-xs mt-2">0 tracks · Just now</p>
-              </div>
-            </div>
 
             {/* Album title */}
             <div>
@@ -299,19 +314,110 @@ export default function Upload() {
               />
             </div>
 
-            {/* Info note */}
-            <div className="bg-surface border border-border rounded-xl px-4 py-3 flex items-start gap-3">
-              <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5e7a6a" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="8" x2="12" y2="12"/>
-                <line x1="12" y1="16" x2="12.01" y2="16"/>
-              </svg>
-              <p className="text-muted text-xs leading-relaxed">
-                After creating the album, you can add tracks to it from the Albums page.
-              </p>
+            {/* Track selector */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-[11px] text-muted uppercase tracking-widest">
+                  Select Tracks
+                </label>
+                {selectedSongs.length > 0 && (
+                  <span className="text-[11px] text-green font-semibold">
+                    {selectedSongs.length} selected
+                  </span>
+                )}
+              </div>
+
+              {tracksLoading ? (
+                <div className="flex items-center justify-center py-10 bg-surface border border-border rounded-xl">
+                  <div className="w-6 h-6 rounded-full border-2 border-green border-t-transparent animate-spin" />
+                </div>
+              ) : myTracks.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 gap-3 bg-surface border border-border rounded-xl text-center">
+                  <div className="text-3xl">🎵</div>
+                  <p className="font-head font-bold text-sm">No tracks uploaded yet</p>
+                  <p className="text-muted text-xs max-w-xs">
+                    Upload some tracks first, then come back to create an album.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('track')}
+                    className="mt-1 text-green text-xs font-semibold hover:text-green-light transition-colors uppercase tracking-widest"
+                  >
+                    Upload a track →
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-surface border border-border rounded-xl overflow-hidden">
+                  {myTracks.map((song, i) => {
+                    const selected = selectedSongs.includes(song._id)
+                    return (
+                      <div
+                        key={song._id}
+                        onClick={() => { toggleSong(song._id); setAlbumError('') }}
+                        className={`flex items-center gap-4 px-5 py-3.5 cursor-pointer transition-all duration-150 border-b border-border/50 last:border-b-0 ${
+                          selected ? 'bg-green/[0.06]' : 'hover:bg-white/[0.03]'
+                        }`}
+                      >
+                        {/* Checkbox */}
+                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all duration-150 ${
+                          selected ? 'bg-green border-green' : 'border-border'
+                        }`}>
+                          {selected && (
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#080c0a" strokeWidth="3">
+                              <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                          )}
+                        </div>
+
+                        {/* Track icon */}
+                        <div className={`w-9 h-9 rounded-lg flex-shrink-0 flex items-center justify-center border ${
+                          selected ? 'bg-green/20 border-green/30' : 'bg-bg border-border'
+                        }`}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                            stroke={selected ? '#2dd87a' : '#5e7a6a'} strokeWidth="2">
+                            <path d="M9 18V5l12-2v13"/>
+                            <circle cx="6" cy="18" r="3"/>
+                            <circle cx="18" cy="16" r="3"/>
+                          </svg>
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm font-medium truncate ${selected ? 'text-green' : 'text-text'}`}>
+                            {song.title}
+                          </p>
+                          <p className="text-muted text-xs mt-0.5">{fmt(song.duration)}</p>
+                        </div>
+
+                        {/* Track number */}
+                        <span className="text-muted text-xs">{i + 1}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
 
-            {/* Error / Success */}
+            {/* Album preview */}
+            {(albumForm.title || selectedSongs.length > 0) && (
+              <div className="bg-surface border border-border rounded-xl p-5 flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green/20 to-green-dark/10 border border-green/20 flex-shrink-0 grid place-items-center">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2dd87a" strokeWidth="1.5">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="12" cy="12" r="3"/>
+                    <line x1="12" y1="2" x2="12" y2="9"/>
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-head font-bold text-sm">{albumForm.title || 'Untitled Album'}</p>
+                  <p className="text-muted text-xs mt-0.5">by {user?.username}</p>
+                  <p className="text-muted text-xs mt-0.5">
+                    {selectedSongs.length} track{selectedSongs.length !== 1 ? 's' : ''} selected
+                  </p>
+                </div>
+              </div>
+            )}
+
             {albumError && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-4 py-3">
                 {albumError}
@@ -326,17 +432,16 @@ export default function Upload() {
               </div>
             )}
 
-            {/* Submit */}
             <button
               type="submit"
-              disabled={albumLoading}
+              disabled={albumLoading || myTracks.length === 0}
               className="w-full bg-green text-bg font-head font-bold text-sm uppercase tracking-widest py-4 rounded-xl transition-all duration-200 hover:bg-green-light hover:-translate-y-px hover:shadow-[0_8px_30px_rgba(45,216,122,.3)] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
             >
               {albumLoading ? (
                 <span className="flex items-center justify-center gap-2">
                   <Spinner /> Creating…
                 </span>
-              ) : 'Create Album →'}
+              ) : `Create Album ${selectedSongs.length > 0 ? `(${selectedSongs.length} tracks)` : ''} →`}
             </button>
 
           </form>
