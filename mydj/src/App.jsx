@@ -9,6 +9,7 @@ import MusicLibrary from './pages/MusicLibrary'
 import Upload from './components/Upload'  
 import Profile from './pages/Profile'
 import GlobalPlayer from './components/GlobalPlayer'
+import { ProtectedRoute, ArtistRoute } from './components/ProtectedRoute'
 
 
 export default function App() {
@@ -19,12 +20,17 @@ export default function App() {
       <Cursor />
     <GlobalPlayer />
       <Routes>
+        {/* public */}
         <Route path="/" element={<Landing />} />
         <Route path="/login"    element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/music"    element={<MusicLibrary />} />
-        <Route path="/upload"    element={<Upload />} />
-        <Route path="/profile" element={<Profile />} />
+
+        {/* protected, for logged in users */}
+        <Route path="/music"    element={<ProtectedRoute><MusicLibrary /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+
+        {/* artist only */}
+        <Route path="/upload" element={<ArtistRoute><Upload /></ArtistRoute>} />
         {/* <Route path="/albums"   element={<Albums />} /> */}
         {/* <Route path="/albums/:id" element={<AlbumDetail />} /> */}
       </Routes>

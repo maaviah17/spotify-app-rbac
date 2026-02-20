@@ -109,9 +109,9 @@ export default function Upload() {
           My<span className="text-green">DJ</span>
         </Link>
         <div className="flex items-center gap-4">
-          <div className="w-8 h-8 rounded-full bg-green/20 border border-green/30 flex items-center justify-center font-head font-bold text-xs text-green uppercase">
+          <Link to="/profile" className="w-8 h-8 rounded-full bg-green/20 border border-green/30 flex items-center justify-center font-head font-bold text-xs text-green uppercase">
             {user?.username?.[0]}
-          </div>
+          </Link>
           <span className="text-sm text-muted hidden md:block">{user?.username}</span>
           <Link
             to="/music"
