@@ -50,7 +50,7 @@ export default function BottomPlayer() {
   const audioEl = (
     <audio
       ref={audioRef}
-      src={currentTrack?.url}
+      src={currentTrack?.audioUrl}
       preload="metadata"
     />
   )
