@@ -1,6 +1,7 @@
 const musicModel = require("../models/music.model");
 const albumModel = require("../models/album.model");
 const jwt = require("jsonwebtoken");
+const mm = require("music-metadata")
 const { uploadFile } = require("../services/storage.service");
 
 async function createMusic(req,res){
@@ -21,10 +22,16 @@ async function createMusic(req,res){
 
     const result = await uploadFile(file.buffer.toString('base64'))
 
+    const metadata = await mm.parseBuffer(req.file.buffer)
+    const duration = metadata?.format?.duration 
+                    ?  Math.floor(metadata.format.duration)
+                    : 0
+
     const music = await musicModel.create({
         audioUrl : result.url,
         title,
         artist : req.user.id,
+        duration
     })
 
     res.status(201).json({

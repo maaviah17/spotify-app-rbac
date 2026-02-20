@@ -13,6 +13,10 @@ const musicSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : "user",
         required : true
+    },
+    duration:{
+        type : Number,
+        default : 0,
     }
 })
 
